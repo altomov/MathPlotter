@@ -8,6 +8,7 @@ from MatplotlibWidget import MatplotlibWidget
 from InputWidget import InputWidget
 from NewPointDialog import AddPointDialog
 from MakeLineDialog import AddLineDialog
+from MakeFunctionDialog import AddFunctionDialog
 
 matplotlib.use("Qt5Agg")
 
@@ -42,20 +43,25 @@ class MainWindow(QtWidgets.QMainWindow):
         # Seperate in function - todo
         self.input_widget.point_created.connect(self.process_point)
         self.input_widget.line_created.connect(self.process_line)
+        self.input_widget.function_created.connect(self.process_function)
 
     def create_actions(self):
         self.create_point_action = QAction("&Add point", self)
         self.create_line_action = QAction("&Add line", self)
+        self.create_function_action = QAction("&Add function", self)
 
         self.clear_board = QAction("&Clear board", self)
 
     def create_toolbars(self):
+        # Basic functions toolbar
         basic_toolbar = QToolBar("Basic", self)
         basic_toolbar.setFixedHeight(72)
         self.addToolBar(basic_toolbar)
         basic_toolbar.addAction(self.create_point_action)
         basic_toolbar.addAction(self.create_line_action)
+        basic_toolbar.addAction(self.create_function_action)
 
+        # Miscellaneous functions toolbar
         miscellaneous_toolbar = QToolBar("Miscellaneous", self)
         self.addToolBar(miscellaneous_toolbar)
         miscellaneous_toolbar.addAction(self.clear_board)
@@ -63,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def connect_actions(self):
         self.create_point_action.triggered.connect(self.add_point)
         self.create_line_action.triggered.connect(self.add_line)
+        self.create_function_action.triggered.connect(self.add_function)
 
         # self.clear_board.triggered.connect(self.clear_all_objects)
 
@@ -85,6 +92,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.input_widget.process_input(input, source='button')
             print(start_point, end_point)
 
+    def add_function(self):
+        function_dialog = AddFunctionDialog(self)
+        if function_dialog.exec_() == QDialog.Accepted:
+            function_equation = function_dialog.get_values()
+            self.input_widget.process_input(function_equation, source='button')
+            print(function_equation)
+    
     def process_point(self, point: Point1):
         self.matplotlib_widget.plot_points(point)
 
@@ -94,6 +108,10 @@ class MainWindow(QtWidgets.QMainWindow):
         c = line.start_point.y - m * line.start_point.x
         print("y=", m, "x+", c)
         self.matplotlib_widget.plot_line(line)
+    
+    def process_function(self, str):
+        self.matplotlib_widget.plot_function(str)
+        
 
 
 if __name__ == "__main__":

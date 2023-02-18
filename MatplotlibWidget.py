@@ -66,7 +66,15 @@ class MatplotlibWidget(QtWidgets.QWidget):
             (line.end_point.x - line.start_point.x)
         c = line.start_point.y - m * line.start_point.x
         y = m*x + c
-        self.axes.plot(x, y, color='blue')
+        color = [random.random() for i in range(3)]
+        self.axes.plot(x, y, color=color)
+        self.axes.figure.canvas.draw()
+
+    def plot_function(self, str):
+        x = np.linspace(-100, 100, 5000)
+        y = eval(str)
+        color = [random.random() for i in range(3)]
+        self.axes.plot(x, y, color = color)
         self.axes.figure.canvas.draw()
 
     def on_press(self, event):

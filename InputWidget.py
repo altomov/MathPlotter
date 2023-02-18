@@ -1,16 +1,19 @@
+import re
+from Line import Line
+from Point import Point1
+from PyQt5 import QtWidgets, QtCore, QtGui
 import matplotlib
 matplotlib.use("Qt5Agg")
-from PyQt5 import QtWidgets, QtCore, QtGui
-from Point import Point1
-from Line import Line
-import re
 
 POINT_REGEX = r"([A-Za-z]+)\(([\d,.]+);([\d,.]+)\)"
 LINE_REGEX = r'^Line\(([A-Za-z]),\s*([A-Za-z])\)$'
+FUNCTION_REGEX = r'[a-zA-Z]+\([a-zA-Z]\)'
+
 
 class InputWidget(QtWidgets.QWidget):
     point_created = QtCore.pyqtSignal(Point1)
     line_created = QtCore.pyqtSignal(Line)
+    function_created = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -35,16 +38,14 @@ class InputWidget(QtWidgets.QWidget):
 
         self.input_text.installEventFilter(self)
 
+    def process_input(self, input_string=None, source='widget'):
 
-    def process_input(self, input_string = None, source = 'widget'):
-        
         if source == 'widget':
             input_string = self.input_text.toPlainText()
 
-        #input_string = self.input_text.toPlainText()
-
         match_point = re.match(POINT_REGEX, input_string, re.IGNORECASE)
         match_line = re.match(LINE_REGEX, input_string, re.IGNORECASE)
+        macth_function = re.match(FUNCTION_REGEX, input_string, re.IGNORECASE)
 
         if match_point:
             try:
@@ -94,6 +95,16 @@ class InputWidget(QtWidgets.QWidget):
 
             except ValueError:
                 print("Value error")
+
+        elif 'x' in input_string:
+            pattern = r'(\d+)([a-zA-Z])'
+            replace = r'\1*\2'
+
+            result = re.sub(pattern, replace, input_string)
+
+            self.function_created.emit(result)
+            self.clear_input()
+            
         else:
             print("Invalid input")
 
