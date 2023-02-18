@@ -6,7 +6,7 @@ from Line import Line
 import re
 
 POINT_REGEX = r"([A-Za-z]+)\(([\d,.]+);([\d,.]+)\)"
-LINE_REGEX = '^Line\(([A-Za-z]),\s*([A-Za-z])\)$'
+LINE_REGEX = r'^Line\(([A-Za-z]),\s*([A-Za-z])\)$'
 
 class InputWidget(QtWidgets.QWidget):
     point_created = QtCore.pyqtSignal(Point1)
@@ -35,8 +35,13 @@ class InputWidget(QtWidgets.QWidget):
 
         self.input_text.installEventFilter(self)
 
-    def process_input(self, input_string=None):
-        input_string = self.input_text.toPlainText()
+
+    def process_input(self, input_string = None, source = 'widget'):
+        
+        if source == 'widget':
+            input_string = self.input_text.toPlainText()
+
+        #input_string = self.input_text.toPlainText()
 
         match_point = re.match(POINT_REGEX, input_string, re.IGNORECASE)
         match_line = re.match(LINE_REGEX, input_string, re.IGNORECASE)
@@ -68,12 +73,15 @@ class InputWidget(QtWidgets.QWidget):
                 point1_name = match_line.group(1)
                 point2_name = match_line.group(2)
 
+                if point1_name == point2_name:
+                    print("You have entered two identical points!")
+
                 if point1_name not in self.points:
-                    print(f"Point '{point1_name}' does not exist")
+                    print(f"Point '{point1_name}' does not exist!")
                     return
 
                 if point2_name not in self.points:
-                    print(f"Point '{point2_name}' does not exist")
+                    print(f"Point '{point2_name}' does not exist!")
                     return
 
                 point1 = self.points[point1_name]
